@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Providers.Blazot", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagzApp.Storage.Postgres", "TagzApp.Storage.Postgres\TagzApp.Storage.Postgres.csproj", "{95D763E5-52F5-4155-A888-C66A686BA6EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagzApp.Providers.LinkedIn", "TagzApp.Providers.LinkedIn\TagzApp.Providers.LinkedIn.csproj", "{BE374EA9-1037-4E60-8412-1D053C9E47C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95D763E5-52F5-4155-A888-C66A686BA6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE374EA9-1037-4E60-8412-1D053C9E47C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE374EA9-1037-4E60-8412-1D053C9E47C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE374EA9-1037-4E60-8412-1D053C9E47C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE374EA9-1037-4E60-8412-1D053C9E47C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
