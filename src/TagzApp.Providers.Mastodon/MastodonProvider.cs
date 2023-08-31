@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
+using TagzApp.Common.Models;
 
 namespace TagzApp.Providers.Mastodon;
 
@@ -52,6 +53,8 @@ internal class MastodonProvider : ISocialMediaProvider
 
 		_NewestId = messages.OrderByDescending(m => m.id).First().id;
 
+		var baseServerAddress = _HttpClient.BaseAddress.Host.ToString();
+
 		return messages!.Select(m => new Content
 		{
 			Provider = Id,
@@ -62,14 +65,14 @@ internal class MastodonProvider : ISocialMediaProvider
 			Author = new Creator
 			{
 				DisplayName = m.account!.display_name,
-				UserName = m.account.acct,
+				UserName = m.account.acct + (m.account.acct.Contains("@") ? "" : $"@{baseServerAddress}" ),
 				ProviderId = Id,
 				ProfileImageUri = new Uri(m.account.avatar_static),
 				ProfileUri = new Uri(m.account.url)
 			},
 			Text = m.content,
 			HashtagSought = tag.Text,
-			PreviewCard = m.card is null ? m.media_attachments.Any() ? (Common.Card)Message.GetMediaAttachment(m.media_attachments.First().ToString()) : null : (Common.Card)m.card
+			PreviewCard = m.card is null ? m.media_attachments.Any() ? (Common.Models.Card)Message.GetMediaAttachment(m.media_attachments.First().ToString()) : null : (Common.Models.Card)m.card
 		}).ToArray();
 
 	}

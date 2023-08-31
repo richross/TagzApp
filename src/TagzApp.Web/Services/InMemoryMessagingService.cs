@@ -1,39 +1,42 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
-using TagzApp.Web.Data;
+using TagzApp.Common.Models;
+using TagzApp.Communication;
 using TagzApp.Web.Hubs;
 
 namespace TagzApp.Web.Services;
 
-public class InMemoryMessagingService : IHostedService
+public class InMemoryMessagingService : BaseProviderManager, IMessagingService
 {
 
 	private InMemoryContentMessaging _Service = default;
 
-	public readonly Dictionary<string, ConcurrentBag<Content>> Content = new Dictionary<string, ConcurrentBag<Content>>();
-	private readonly IEnumerable<ISocialMediaProvider> _Providers;
-	private readonly IHubContext<MessageHub> _HubContext;
 	private readonly ILogger<InMemoryMessagingService> _Logger;
+	private readonly INotifyNewMessages _NotifyNewMessages;
 
 	public InMemoryMessagingService(
-		IEnumerable<ISocialMediaProvider> providers, 
-		IHubContext<MessageHub> hubContext,
-		ILogger<InMemoryMessagingService> logger
-	)
-  {
-		_Providers = providers;
-		_HubContext = hubContext;
+		IConfiguration configuration,
+		ILogger<InMemoryMessagingService> logger,
+		INotifyNewMessages notifyNewMessages,
+		IEnumerable<ISocialMediaProvider>? socialMediaProviders = null
+	) : base(configuration, logger, socialMediaProviders)
+	{
 		_Logger = logger;
+		_NotifyNewMessages = notifyNewMessages;
 	}
 
-  #region Hosted Service Implementation
+	/// <summary>
+	/// A collection of the tags and the content found for them.
+	/// </summary>
+	private readonly Dictionary<string, ConcurrentBag<Content>> _Content = new Dictionary<string, ConcurrentBag<Content>>();
 
-  public Task StartAsync(CancellationToken cancellationToken)
+	#region Hosted Service Implementation
+
+	public Task StartAsync(CancellationToken cancellationToken)
 	{
-
+		InitProviders();
 		_Service = new InMemoryContentMessaging();
-		_Service.StartProviders(_Providers, cancellationToken);
+		_Service.StartProviders(Providers, cancellationToken);
 
 		return Task.CompletedTask;
 	}
@@ -49,16 +52,16 @@ public class InMemoryMessagingService : IHostedService
 	public Task AddHashtagToWatch(string tag)
 	{
 
-		if (!Content.ContainsKey(tag)) {
-			Content.Add(tag.TrimStart('#'), new ConcurrentBag<Content>());
+		if (!_Content.ContainsKey(Hashtag.ClearFormatting(tag)))
+		{   // Check hashtag without #
+			_Content.Add(Hashtag.ClearFormatting(tag), new ConcurrentBag<Content>());
 		}
 
-		_Service.SubscribeToContent(new Hashtag() { Text = tag }, 
-			c => {
-				Content[c.HashtagSought.TrimStart('#')].Add(c);
-				_HubContext.Clients
-					.Group(c.HashtagSought.TrimStart('#').ToLowerInvariant()) 
-					.SendAsync("NewMessage", (ContentModel)c);
+		_Service.SubscribeToContent(new Hashtag() { Text = tag },
+			c =>
+			{
+				_Content[c.HashtagSought.TrimStart('#')].Add(c);
+				_NotifyNewMessages.Notify(Hashtag.ClearFormatting(c.HashtagSought), c);
 				//_Logger.LogInformation($"Message found for tag '{c.HashtagSought}': {c.Text}");
 			});
 
@@ -66,13 +69,35 @@ public class InMemoryMessagingService : IHostedService
 
 	}
 
-	public IEnumerable<Content> GetExistingContentForTag(string tag)
+	public Task<IEnumerable<Content>> GetExistingContentForTag(string tag)
 	{
 
-		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Enumerable.Empty<Content>();
+		if (!_Service._LoadedContent.ContainsKey(tag.TrimStart('#').ToLowerInvariant())) return Task.FromResult(Enumerable.Empty<Content>());
 
-		return _Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()];
+		return Task.FromResult(_Service._LoadedContent[tag.TrimStart('#').ToLowerInvariant()].AsEnumerable());
 
 	}
+
+	public async Task<Content?> GetContentByIds(string provider, string providerId)
+	{
+
+		return _Content.First().Value
+			.FirstOrDefault(c => c.Provider == provider && c.ProviderId == providerId);
+
+	}
+
+	public Task<IEnumerable<Content>> GetApprovedContentByTag(string tag)
+	{
+
+		return Task.FromResult(Enumerable.Empty<Content>());
+
+	}
+
+	public Task<IEnumerable<(Content, ModerationAction)>> GetContentByTagForModeration(string tag)
+	{
+		throw new NotImplementedException();
+	}
+
+	public IEnumerable<string> TagsTracked => _Content.Keys;
 
 }

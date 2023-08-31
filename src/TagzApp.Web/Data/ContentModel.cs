@@ -1,4 +1,6 @@
-﻿namespace TagzApp.Web.Data;
+﻿using TagzApp.Common.Models;
+
+namespace TagzApp.Web.Data;
 
 /// <summary>
 /// Content to be shared with the web client
@@ -18,6 +20,7 @@ public record ContentModel(
 	string SourceUri, 
 	DateTimeOffset Timestamp, 
 	string AuthorDisplayName, 
+	string AuthorUserName,
 	string AuthorProfileUri, 
 	string AuthorProfileImageUri, 
 	string Text,
@@ -33,6 +36,7 @@ public record ContentModel(
 			content.SourceUri.ToString(),
 			content.Timestamp,
 			content.Author.DisplayName,
+			content.Author.UserName,
 			content.Author.ProfileUri.ToString(),
 			content.Author.ProfileImageUri.ToString(),
 			content.Text,

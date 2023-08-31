@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Options;
+using TagzApp.Common.Models;
 using TagzApp.Providers.Youtube.Configuration;
 
 namespace TagzApp.Providers.Youtube;
@@ -30,8 +31,8 @@ internal class YoutubeProvider : ISocialMediaProvider
 		var searchListRequest = youtubeService.Search.List("snippet");
 		searchListRequest.Q = tag.Text;
 		searchListRequest.Order = SearchResource.ListRequest.OrderEnum.Relevance;
-		searchListRequest.SafeSearch = SearchResource.ListRequest.SafeSearchEnum.Moderate;
-		searchListRequest.MaxResults = 50;
+		searchListRequest.SafeSearch = _Configuration.SafeSearch;
+		searchListRequest.MaxResults = _Configuration.MaxResults;
 
 		var searchListResponse = await searchListRequest.ExecuteAsync();
 

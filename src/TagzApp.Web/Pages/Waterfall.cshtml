@@ -1,0 +1,57 @@
+﻿@page
+@model TagzApp.Web.Pages.WaterfallModel
+@{
+	Layout = "_WaterfallLayout";
+	ViewBag.EnableFloatingHeader = true;
+}
+<div class="row">
+	<div class="col-md-12">
+		<h1 class="text-center">Welcome to TagzApp</h1>
+	</div>
+</div>
+
+<div id="taggedContent" class="">
+
+	@* 		<div class=" d-flex justify-content-center" style="width:100%;">
+
+	<div class="spinner-border" role="status">
+	<span class="visually-hidden">Loading...</span>
+	</div>
+
+	</div>
+	*@
+</div>
+
+
+<div class="modal fade show" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<img class="ProfilePicture" src="" alt="" />
+				<div class="author"></div>
+				<div class="authorUserName" title=""></div>
+				<i class="provider bi"></i>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<div class="time"></div>
+			</div>
+
+			<div class="modal-body">
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+
+	<script src="~/js/masonry.js" asp-append-version="true"></script>
+	<script>
+
+		window.TagzApp.ListenForWaterfallContent("@string.Join(',', Model.Tags)");
+
+		window.onload = window.Masonry.resizeAllGridItems();
+		window.addEventListener("resize", Masonry.resizeAllGridItems);
+
+	</script>
+
+}
+
