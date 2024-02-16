@@ -4,8 +4,23 @@ namespace TagzApp.Storage.Postgres;
 
 public class TagzAppContext : DbContext
 {
-	public TagzAppContext(DbContextOptions options) : base(options)
+	private readonly IConfiguration _Configuration;
+	private bool _InMemory;
+
+	public TagzAppContext() { }
+
+	public TagzAppContext(IConfiguration configuration)
 	{
+		_Configuration = configuration;
+	}
+
+	public TagzAppContext(DbContextOptions<TagzAppContext> options) : base(options)
+	{
+	}
+
+	public TagzAppContext(DbContextOptions<TagzAppContext> options, IConfiguration configuration) : base(options)
+	{
+		_Configuration = configuration;
 	}
 
 	public DbSet<PgContent> Content { get; set; }
