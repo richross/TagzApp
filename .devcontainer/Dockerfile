@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0.101-bookworm-slim-amd64
 
 #this will not run in the aspnet image, so using the sdk image to do the ef bits.
-RUN dotnet tool install --global dotnet-ef
+RUN dotnet tool install --global dotnet-ef --version 8.0.1
 
 # Install locales package
 # RUN apt-get clean && apt-get update && apt-get install -y locales
