@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace TagzApp.Storage.Postgres;
 
@@ -15,11 +14,11 @@ public class TagzAppContext : DbContext
 		_Configuration = configuration;
 	}
 
-	public TagzAppContext(DbContextOptions options) : base(options)
+	public TagzAppContext(DbContextOptions<TagzAppContext> options) : base(options)
 	{
 	}
 
-	public TagzAppContext(DbContextOptions options, IConfiguration configuration) : base(options)
+	public TagzAppContext(DbContextOptions<TagzAppContext> options, IConfiguration configuration) : base(options)
 	{
 		_Configuration = configuration;
 	}
@@ -30,35 +29,9 @@ public class TagzAppContext : DbContext
 
 	public DbSet<PgBlockedUser> BlockedUsers { get; set; }
 
-	public DbSet<Settings> Settings => Set<Settings>();
+	//public DbSet<Settings> Settings => Set<Settings>();
 
 	public DbSet<Tag> TagsWatched { get; set; }
-
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-	{
-
-		if (!string.IsNullOrEmpty(_Configuration.GetConnectionString("TagzApp")))
-		{
-
-			optionsBuilder.UseNpgsql(
-							_Configuration.GetConnectionString("TagzApp")
-							);
-
-		}
-		else
-		{
-
-			optionsBuilder.UseInMemoryDatabase("InMemoryDatabase");
-			_InMemory = true;
-		}
-
-		base.OnConfiguring(optionsBuilder);
-	}
-
-
-
-	public DbSet<ProviderConfiguration> ProviderConfigurations { get; set; }
-
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -71,11 +44,6 @@ public class TagzAppContext : DbContext
 		modelBuilder.Entity<Tag>().Property(t => t.Text)
 			.HasMaxLength(50)
 			.IsRequired();
-
-		if (_InMemory)
-		{
-			modelBuilder.Entity<ProviderConfiguration>(c => c.Ignore(nameof(ProviderConfiguration.ConfigurationSettings)));
-		}
 
 		base.OnModelCreating(modelBuilder);
 
